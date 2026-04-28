@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", sans-serif;
+  --font-display: "Outfit", sans-serif;
+  --font-mono: "Outfit", sans-serif;
+
+  --color-background: #FCF9F6;
+  --color-foreground: #241208;
+  
+  --color-primary: #F47C59;
+  --color-accent: #F47C59;
+  --color-accent-inverse: #FCF9F6;
+  
+  --color-tertiary: #92CFF2;
+  --color-surface-dim: #C8C2BC;
+  --color-border-clean: #241208;
+  
+  --color-error: #FF0000;
+  --color-success: #008000;
+  --color-warning: #FFA500;
+  --color-info: #0000FF;
+
+  --shadow-premium: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.035) 0px 2.8px 2.2px 0px, rgba(0, 0, 0, 0.047) 0px 6.7px 5.3px 0px, rgba(0, 0, 0, 0.06) 0px 12.5px 10px 0px, rgba(0, 0, 0, 0.07) 0px 22.3px 17.9px 0px, rgba(0, 0, 0, 0.086) 0px 41.8px 33.4px 0px, rgba(0, 0, 0, 0.12) 0px 100px 80px 0px;
+}
+
+@layer base {
+  html, body {
+    overflow: hidden;
+    height: 100%;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+@layer utilities {
+  .border-agency {
+    border: 0.67px solid var(--color-border-clean);
+  }
+  
+  .gradient-shell {
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(0, 0, 0, 0.05) 100%);
+    border-radius: 2px;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
