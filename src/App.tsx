@@ -727,7 +727,7 @@ export default function App() {
       </main>
 
       {/* Global Status Unit */}
-      <footer className="absolute bottom-0 w-full bg-surface-dim border-t border-white/5 flex flex-row items-center justify-end px-4 md:px-6 py-2 md:py-0 md:h-16 z-50 gap-8 md:gap-8">
+      <footer className="absolute bottom-0 w-full bg-surface-dim border-t border-white/5 flex flex-row items-center justify-between md:justify-end px-4 md:px-6 py-2 md:py-0 md:h-16 z-50 md:gap-8">
         <div className="flex items-center gap-2 md:gap-3 flex-shrink-0 order-1 md:order-1">
           <div className="flex flex-col">
             <span className="text-[9px] md:text-[10px] font-mono tracking-[1.2px] uppercase text-foreground/40 font-bold">EST TOTAL</span>
