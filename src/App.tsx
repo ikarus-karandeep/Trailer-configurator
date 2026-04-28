@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useMemo, Suspense, lazy } from 'react';
+import { useState, useMemo, Suspense, lazy, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Settings,
@@ -27,6 +27,7 @@ export default function App() {
     foundation: STEPS[0].options[3], // Default to 8.5 x 24 ft
     height: HEIGHT_OPTIONS[0] // Default to standard
   });
+  const stepsScrollRef = useRef<HTMLDivElement>(null);
 
   const activeStep = STEPS[activeStepIndex];
 
@@ -125,6 +126,23 @@ export default function App() {
       setActiveStepIndex(prev => prev - 1);
     }
   };
+
+  const scrollStepsLeft = () => {
+    prevStep();
+  };
+
+  const scrollStepsRight = () => {
+    nextStep();
+  };
+
+  useEffect(() => {
+    if (stepsScrollRef.current) {
+      const activeButton = stepsScrollRef.current.querySelector(`button:nth-child(${activeStepIndex + 1})`);
+      if (activeButton) {
+        activeButton.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }
+  }, [activeStepIndex]);
 
   // Helper for UI grouping/components
   const renderOptions = () => {
@@ -338,13 +356,13 @@ export default function App() {
       return (
         <div className="space-y-10">
           <div>
-            <div className="text-[11px] font-mono font-bold tracking-[1.5px] uppercase mb-4 pb-3 text-foreground/30">BASE_PALETTE</div>
-            <div className="grid grid-cols-5 gap-3">
+            <div className="text-[11px] font-mono font-bold tracking-[1.5px] uppercase mb-6 pb-3 text-foreground/30">BASE_PALETTE</div>
+            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-4 gap-6">
               {colors.map((c) => (
                 <button
                   key={c.name}
                   onClick={() => handleSelect({ label: `Standard Color: ${c.name}`, price: 'Included' })}
-                  className={`aspect-square border transition-all p-1.5 ${selections.exterior?.label.includes(c.name) ? 'border-primary ring-1 ring-primary ring-offset-2' : 'border-agency hover:border-primary'}`}
+                  className={`w-20 h-20 md:w-25 md:h-25 xl:w-20 xl:h-20 border-2 transition-all ${selections.exterior?.label.includes(c.name) ? 'border-primary ring-2 ring-primary ring-offset-2' : 'border-agency hover:border-primary'}`}
                 >
                   <div className="w-full h-full border border-black/5" style={{ background: c.hex }} title={c.name} />
                 </button>
@@ -353,13 +371,13 @@ export default function App() {
           </div>
 
           <div>
-            <div className="text-[11px] font-mono font-bold tracking-[1.5px] uppercase mb-4 pb-3 text-foreground/30">PREMIUM_FINISHES</div>
-            <div className="grid grid-cols-5 gap-3">
+            <div className="text-[11px] font-mono font-bold tracking-[1.5px] uppercase mb-6 pb-3 text-foreground/30">PREMIUM_FINISHES</div>
+            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-4 lg:grid-cols-4 gap-2">
               {premiumColors.map((c) => (
                 <button
                   key={c.name}
                   onClick={() => handleSelect({ label: `Premium Color: ${c.name}`, price: '+$350' })}
-                  className={`aspect-square border transition-all p-1.5 ${selections.exterior?.label.includes(c.name) ? 'border-primary ring-1 ring-primary ring-offset-2' : 'border-agency hover:border-primary'}`}
+                  className={`w-20 h-20 md:w-25 md:h-25 xl:w-20 xl:h-20 border-2 transition-all ${selections.exterior?.label.includes(c.name) ? 'border-primary ring-2 ring-primary ring-offset-2' : 'border-agency hover:border-primary'}`}
                 >
                   <div className="w-full h-full border border-black/5" style={{ background: c.hex }} title={c.name} />
                 </button>
@@ -599,26 +617,43 @@ export default function App() {
   return (
     <div className="w-full h-[100dvh] relative flex flex-col bg-background overflow-hidden shadow-premium mx-auto">
       {/* Top Header */}
-      <nav className="sticky top-0 left-0 w-full h-16 bg-surface-dim flex justify-between items-center px-4 md:px-10 z-50 border-b border-white/5">
+      <nav className="sticky top-0 left-0 w-full h-16 bg-surface-dim flex items-center px-2 md:px-10 z-50 border-b border-white/5 gap-2">
+        {/* Left Arrow */}
+        <button
+          onClick={scrollStepsLeft}
+          className="flex items-center justify-center w-8 h-8 text-foreground/60 hover:text-primary transition-colors shrink-0"
+        >
+          <ChevronLeft size={18} strokeWidth={2} />
+        </button>
+
         {/* Navigation - Horizontal Scrolling on Mobile */}
-        <div className="flex-1 overflow-x-auto no-scrollbar flex justify-between items-center h-full mr-10 font-mono min-w-0">
+        <div ref={stepsScrollRef} className="flex-1 overflow-x-auto no-scrollbar flex items-center h-full font-mono min-w-0 gap-0">
           {STEPS.map((s, i) => (
             <button
               key={s.id}
               onClick={() => setActiveStepIndex(i)}
-              className={`text-[9px] font-bold tracking-[1.2px] transition-all relative h-full flex items-center px-4 uppercase whitespace-nowrap flex-shrink-0 ${activeStepIndex === i ? 'text-primary' : 'text-foreground hover:text-primary'
+              className={`text-[9px] font-bold tracking-[1.2px] transition-all relative h-full flex items-center px-3 md:px-4 uppercase whitespace-nowrap flex-shrink-0 ${activeStepIndex === i ? 'text-primary' : 'text-foreground hover:text-primary'
                 }`}
             >
               <span className="mr-2 opacity-30">{s.num}</span>
-              {s.title}
+              <span className="hidden sm:inline">{s.title}</span>
+              <span className="inline sm:hidden">{s.title.split(' ')[0]}</span>
               {activeStepIndex === i && <motion.div layoutId="nav-line" className="absolute bottom-0 left-0 w-full h-[2px] bg-primary" />}
             </button>
           ))}
         </div>
 
-        <div className="flex items-center space-x-4 md:space-x-6 text-foreground shrink-0 opacity-60">
-          <Settings size={18} strokeWidth={2} className="cursor-pointer hover:text-primary transition-colors" />
-          <HelpCircle size={18} strokeWidth={2} className="cursor-pointer hover:text-primary transition-colors" />
+        {/* Right Arrow */}
+        <button
+          onClick={scrollStepsRight}
+          className="flex items-center justify-center w-8 h-8 text-foreground/60 hover:text-primary transition-colors shrink-0"
+        >
+          <ChevronRight size={18} strokeWidth={2} />
+        </button>
+
+        <div className="flex items-center space-x-3 md:space-x-6 text-foreground shrink-0 opacity-60">
+          <Settings size={16} strokeWidth={2} className="cursor-pointer hover:text-primary transition-colors" />
+          <HelpCircle size={16} strokeWidth={2} className="cursor-pointer hover:text-primary transition-colors" />
         </div>
       </nav>
 
@@ -645,14 +680,14 @@ export default function App() {
             </motion.div>
           </AnimatePresence>
 
-          <div className="absolute top-4 left-4 md:top-10 md:left-10 space-y-2">
+          {/* <div className="absolute top-4 left-4 md:top-10 md:left-10 space-y-2">
             {activeStep.threeD.map((note, i) => (
               <div key={i} className="bg-white/80 backdrop-blur-sm px-3 py-1.5 text-[9px] md:text-[10px] font-mono font-bold tracking-[1.2px] uppercase flex items-center space-x-3 shadow-premium/5">
                 <Monitor size={14} strokeWidth={2} className="text-primary" />
                 <span>{note}</span>
               </div>
             ))}
-          </div>
+          </div> */}
         </div>
 
         {/* Info & Config Sidebar */}
@@ -683,60 +718,51 @@ export default function App() {
 
           <div className="flex-1 min-h-0 overflow-y-auto">
             {/* Options */}
-            <div className="p-2 xl:p-6 space-y-3">
+            <div className="p-6 xl:p-6 space-y-3">
               {renderOptions()}
             </div>
           </div>
 
-          {/* Sidebar Nav (Next/Prev) */}
-          <div className="shrink-0 p-3 sm:p-4 md:p-6 lg:p-8 bg-background flex space-x-3 border-t border-white/5">
-            <button
-              onClick={prevStep}
-              disabled={activeStepIndex === 0}
-              className="flex-1 h-12 sm:h-12 lg:h-14 border border-agency flex items-center justify-center space-x-2 bg-white hover:bg-surface-dim disabled:opacity-20 transition-all uppercase font-mono font-bold tracking-[1.2px]"
-            >
-              <ChevronLeft size={16} strokeWidth={2.5} />
-              <span className="text-[11px]">BACK</span>
-            </button>
-            <button
-              onClick={nextStep}
-              disabled={activeStepIndex === STEPS.length - 1}
-              className="flex-1 h-12 sm:h-12 lg:h-14 bg-primary text-white border border-agency flex items-center justify-center space-x-2 hover:shadow-premium transition-all uppercase font-mono font-bold tracking-[1.2px] group"
-            >
-              <span className="text-[11px]">{activeStepIndex === STEPS.length - 1 ? 'FINISH' : 'NEXT'}</span>
-              <ChevronRight size={16} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
         </aside>
       </main>
 
       {/* Global Status Unit */}
-      <footer className="absolute bottom-0 w-full bg-surface-dim border-t border-white/5 flex flex-row justify-between items-center px-4 md:px-10 py-3 md:py-0 md:h-16 z-50">
-        <div className="flex items-center justify-between md:justify-start w-full md:w-auto md:space-x-12 mb-3 md:mb-0">
+      <footer className="absolute bottom-0 w-full bg-surface-dim border-t border-white/5 flex flex-row items-center justify-end px-4 md:px-6 py-2 md:py-0 md:h-16 z-50 gap-8 md:gap-8">
+        <div className="flex items-center gap-2 md:gap-3 flex-shrink-0 order-1 md:order-1">
           <div className="flex flex-col">
             <span className="text-[9px] md:text-[10px] font-mono tracking-[1.2px] uppercase text-foreground/40 font-bold">EST TOTAL</span>
             <span className="text-xl md:text-2xl font-display tracking-tight text-foreground leading-none mt-0.5">
-              ${totalPrice.toLocaleString()} <span className="text-[10px] font-mono text-foreground/30 font-bold ml-1">USD</span>
+              ${totalPrice.toLocaleString()} <span className="text-[10px] font-mono text-foreground/30 font-bold ml-1 whitespace-nowrap">USD</span>
             </span>
           </div>
-          <div className="hidden sm:flex flex-col pl-8 border-l border-white/10">
-            <span className="text-[10px] font-mono tracking-[1.2px] uppercase text-foreground/40 font-bold">CORE SPEC</span>
-            <span className="text-[12px] font-mono font-bold tracking-tight uppercase leading-none mt-1">
-              {selections.foundation?.label || 'UNBOUND'}
+          {/* <div className="flex flex-col pl-2 sm:pl-3 border-l border-white/10">
+            <span className="text-[9px] md:text-[10px] font-mono tracking-[1.2px] uppercase text-foreground/40 font-bold">CORE</span>
+            <span className="text-xl md:text-2xl  font-display font-bold tracking-tight uppercase leading-none mt-1">
+              {selections.foundation?.label?.split(' ')[0] || 'UNBOUND'}
             </span>
-          </div>
+          </div> */}
         </div>
 
-        <div className="flex items-center space-x-4 md:space-x-6 w-full md:w-auto">
-          <button className="hidden sm:block text-[11px] font-mono tracking-[1.2px] font-bold text-foreground/60 hover:text-primary transition-colors uppercase">
-            DATA_SHEET
+        <div className="flex items-center space-x-2 md:space-x-3 flex-shrink-0 order-2 md:order-2">
+          <button
+            onClick={prevStep}
+            disabled={activeStepIndex === 0}
+            className="h-11 md:h-12 border border-agency flex items-center justify-center space-x-1 md:space-x-2 bg-white disabled:opacity-20 hover:shadow-premium transition-all uppercase font-mono font-bold tracking-[1.2px] text-[10px] md:text-[11px] px-4 md:px-5 group"
+          >
+            <ChevronLeft size={16} strokeWidth={2.5}/>
+            <span>BACK</span>
           </button>
-          <button className="flex-1 md:flex-none bg-primary text-white px-6 md:px-8 h-10 md:h-12 border-agency hover:shadow-premium transition-all uppercase font-mono text-[10px] md:text-[11px] font-bold tracking-[1.2px] flex items-center justify-center group">
-            DISPATCH_ORDER
-            <ChevronRight size={14} className="ml-2 group-hover:translate-x-1 transition-transform" />
+          <button
+            onClick={nextStep}
+            disabled={activeStepIndex === STEPS.length - 1}
+            className="h-11 md:h-12 bg-primary text-white border border-agency flex items-center justify-center space-x-1 md:space-x-2 hover:shadow-premium transition-all uppercase font-mono font-bold tracking-[1.2px] text-[10px] md:text-[11px] px-4 md:px-5 group"
+          >
+            <span>{activeStepIndex === STEPS.length - 1 ? 'FINISH' : 'NEXT'}</span>
+            <ChevronRight size={16} strokeWidth={2.5}/>
           </button>
         </div>
       </footer>
+
 
       {/* Onboarding Overlay */}
       <AnimatePresence>
